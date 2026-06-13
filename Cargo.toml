@@ -1,0 +1,11 @@
+[package]
+name = "lyrem"
+version = "0.1.0"
+edition = "2024"
+authors = ["Vincent Brochard"]
+description = "Linux ELF security auditor"
+license = "Apache-2.0"
+repository = "https://github.com/VBrochard/lyrem"
+readme = "README.md"
+
+[dependencies]
