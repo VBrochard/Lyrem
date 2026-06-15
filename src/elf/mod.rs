@@ -1,2 +1,2 @@
-pub mod metadata;  
+pub mod metadata;
 mod parser;
