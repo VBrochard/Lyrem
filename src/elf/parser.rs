@@ -31,10 +31,13 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfHeaderMetadata, ElfError> {
     let class = parse_class(class_byte);
     let endian_byte = read_u8(&mut f)?;
     let endianess = parse_endian(endian_byte);
+    read_u8(&mut f)?;
+    let abi_byte = read_u8(&mut f)?;
+    let abi = parse_abi(abi_byte);
     let header = ElfHeaderMetadata {
         class,
         endianess,
-        abi: Abi::Unknown(0),
+        abi,
         architecture: Architecture::Unknown(0),
         binary_type: BinaryType::Unknown(0),
         entry_point: 0,
@@ -66,6 +69,19 @@ fn parse_endian(endian: u8) -> Endianess {
         1 => Endianess::LittleEndian,
         2 => Endianess::BigEndian,
         x => Endianess::Unknown(x),
+    }
+}
+
+fn parse_abi(abi: u8) -> Abi {
+    match abi {
+        0 => Abi::SystemV,
+        2 => Abi::NetBSD,
+        3 => Abi::Linux,
+        9 => Abi::FreeBSD,
+        12 => Abi::OpenBSD,
+        97 => Abi::Arm,
+        255 => Abi::Standalone,
+        x => Abi::Unknown(x),
     }
 }
 

@@ -21,6 +21,7 @@ pub enum Abi {
     Linux,
     FreeBSD,
     OpenBSD,
+    Arm,
     Standalone,
     Unknown(u8),
 }

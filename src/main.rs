@@ -5,7 +5,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let query = &args[1];
     let chemin = Path::new(&query);
-    let response = parse_elf(&chemin);
+    let response = parse_elf(chemin);
     match response {
         Ok(header) => println!(
             "Class        : {:?}
