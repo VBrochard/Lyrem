@@ -7,15 +7,25 @@ use crate::elf::metadata::Abi;
 use crate::elf::metadata::Architecture;
 use crate::elf::metadata::BinaryType;
 
+use crate::elf::metadata::BinaryType::Core;
+use crate::elf::metadata::BinaryType::Executable;
+use crate::elf::metadata::BinaryType::None;
+use crate::elf::metadata::BinaryType::Relocatable;
+use crate::elf::metadata::BinaryType::SharedObject;
+use crate::elf::metadata::BinaryType::Unknown;
 use crate::elf::metadata::ElfClass::{self};
 use crate::elf::metadata::ElfHeaderMetadata;
+use crate::elf::metadata::Endianess::BigEndian;
+use crate::elf::metadata::Endianess::LittleEndian;
 use crate::elf::metadata::Endianess::{self};
+use crate::elf::parser::ElfError::BadHeader;
 use crate::elf::parser::ElfError::NotAnElfFile;
 
 #[derive(Debug)]
 pub enum ElfError {
     Io(io::Error),
     NotAnElfFile,
+    BadHeader,
 }
 
 impl From<io::Error> for ElfError {
@@ -30,16 +40,21 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfHeaderMetadata, ElfError> {
     let class_byte = read_u8(&mut f)?;
     let class = parse_class(class_byte);
     let endian_byte = read_u8(&mut f)?;
-    let endianess = parse_endian(endian_byte);
+    let endianess = parse_endian(endian_byte)?;
     read_u8(&mut f)?;
     let abi_byte = read_u8(&mut f)?;
     let abi = parse_abi(abi_byte);
+    for _ in 0..8 {
+        read_u8(&mut f)?;
+    }
+    let binary_byte = read_u16(&mut f, &endianess)?;
+    let binary_type = parse_binary_type(binary_byte);
     let header = ElfHeaderMetadata {
         class,
         endianess,
         abi,
         architecture: Architecture::Unknown(0),
-        binary_type: BinaryType::Unknown(0),
+        binary_type,
         entry_point: 0,
     };
     Ok(header)
@@ -64,11 +79,11 @@ fn parse_class(class: u8) -> ElfClass {
     }
 }
 
-fn parse_endian(endian: u8) -> Endianess {
+fn parse_endian(endian: u8) -> Result<Endianess, ElfError> {
     match endian {
-        1 => Endianess::LittleEndian,
-        2 => Endianess::BigEndian,
-        x => Endianess::Unknown(x),
+        1 => Ok(Endianess::LittleEndian),
+        2 => Ok(Endianess::BigEndian),
+        _ => Err(BadHeader),
     }
 }
 
@@ -85,8 +100,29 @@ fn parse_abi(abi: u8) -> Abi {
     }
 }
 
+fn parse_binary_type(bin: u16) -> BinaryType {
+    match bin {
+        0 => None,
+        1 => Relocatable,
+        2 => Executable,
+        3 => SharedObject,
+        4 => Core,
+        x => Unknown(x),
+    }
+}
+
 fn read_u8(desc: &mut File) -> Result<u8, ElfError> {
     let mut buffer = [0];
     desc.read_exact(&mut buffer)?;
     Ok(buffer[0])
+}
+
+fn read_u16(desc: &mut File, endia: &Endianess) -> Result<u16, ElfError> {
+    let mut buffer = [0; 2];
+    desc.read_exact(&mut buffer)?;
+    let response = match endia {
+        LittleEndian => u16::from_le_bytes(buffer),
+        BigEndian => u16::from_be_bytes(buffer),
+    };
+    Ok(response)
 }

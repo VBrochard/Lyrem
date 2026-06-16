@@ -9,7 +9,6 @@ pub enum ElfClass {
 
 #[derive(Debug)]
 pub enum Endianess {
-    Unknown(u8),
     LittleEndian,
     BigEndian,
 }
