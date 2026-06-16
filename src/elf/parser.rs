@@ -59,6 +59,14 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfHeaderMetadata, ElfError> {
     let binary_type = parse_binary_type(binary_byte);
     let archi_byte = read_u16(&mut f, &endianess)?;
     let architecture = parse_architecture(archi_byte);
+    for _ in 0..4 {
+        read_u8(&mut f)?;
+    }
+    let entry_point = match &class {
+        ElfClass::Elf32 => read_u32(&mut f, &endianess)? as u64,
+        ElfClass::Elf64 => read_u64(&mut f, &endianess)?,
+        ElfClass::Unknown(_) => return Err(BadHeader),
+    };
 
     let header = ElfHeaderMetadata {
         class,
@@ -66,7 +74,7 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfHeaderMetadata, ElfError> {
         abi,
         architecture,
         binary_type,
-        entry_point: 0,
+        entry_point,
     };
     Ok(header)
 }
@@ -147,6 +155,26 @@ fn read_u16(desc: &mut File, endia: &Endianess) -> Result<u16, ElfError> {
     let response = match endia {
         LittleEndian => u16::from_le_bytes(buffer),
         BigEndian => u16::from_be_bytes(buffer),
+    };
+    Ok(response)
+}
+
+fn read_u32(desc: &mut File, endia: &Endianess) -> Result<u32, ElfError> {
+    let mut buffer = [0; 4];
+    desc.read_exact(&mut buffer)?;
+    let response = match endia {
+        LittleEndian => u32::from_le_bytes(buffer),
+        BigEndian => u32::from_be_bytes(buffer),
+    };
+    Ok(response)
+}
+
+fn read_u64(desc: &mut File, endia: &Endianess) -> Result<u64, ElfError> {
+    let mut buffer = [0; 8];
+    desc.read_exact(&mut buffer)?;
+    let response = match endia {
+        LittleEndian => u64::from_le_bytes(buffer),
+        BigEndian => u64::from_be_bytes(buffer),
     };
     Ok(response)
 }
