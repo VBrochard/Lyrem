@@ -5,14 +5,22 @@ use std::path::Path;
 
 use crate::elf::metadata::Abi;
 use crate::elf::metadata::Architecture;
+use crate::elf::metadata::Architecture::AArch64;
+use crate::elf::metadata::Architecture::Arm;
+
+use crate::elf::metadata::Architecture::RiscV;
+use crate::elf::metadata::Architecture::Sparc;
+
+use crate::elf::metadata::Architecture::X86;
+use crate::elf::metadata::Architecture::X86_64;
 use crate::elf::metadata::BinaryType;
 
 use crate::elf::metadata::BinaryType::Core;
 use crate::elf::metadata::BinaryType::Executable;
-use crate::elf::metadata::BinaryType::None;
+
 use crate::elf::metadata::BinaryType::Relocatable;
 use crate::elf::metadata::BinaryType::SharedObject;
-use crate::elf::metadata::BinaryType::Unknown;
+
 use crate::elf::metadata::ElfClass::{self};
 use crate::elf::metadata::ElfHeaderMetadata;
 use crate::elf::metadata::Endianess::BigEndian;
@@ -49,11 +57,14 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfHeaderMetadata, ElfError> {
     }
     let binary_byte = read_u16(&mut f, &endianess)?;
     let binary_type = parse_binary_type(binary_byte);
+    let archi_byte = read_u16(&mut f, &endianess)?;
+    let architecture = parse_architecture(archi_byte);
+
     let header = ElfHeaderMetadata {
         class,
         endianess,
         abi,
-        architecture: Architecture::Unknown(0),
+        architecture,
         binary_type,
         entry_point: 0,
     };
@@ -102,12 +113,25 @@ fn parse_abi(abi: u8) -> Abi {
 
 fn parse_binary_type(bin: u16) -> BinaryType {
     match bin {
-        0 => None,
+        0 => BinaryType::None,
         1 => Relocatable,
         2 => Executable,
         3 => SharedObject,
         4 => Core,
-        x => Unknown(x),
+        x => BinaryType::Unknown(x),
+    }
+}
+
+fn parse_architecture(archi: u16) -> Architecture {
+    match archi {
+        0 => Architecture::None,
+        2 => Sparc,
+        3 => X86,
+        40 => Arm,
+        62 => X86_64,
+        183 => AArch64,
+        243 => RiscV,
+        x => Architecture::Unknown(x),
     }
 }
 
