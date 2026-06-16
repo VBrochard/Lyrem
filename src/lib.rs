@@ -1,2 +1,2 @@
-mod elf;
+pub mod elf;
 mod output;

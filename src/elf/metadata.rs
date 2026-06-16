@@ -1,11 +1,20 @@
 use std::path::PathBuf;
 
+#[derive(Debug)]
 pub enum ElfClass {
     Elf32,
     Elf64,
     Unknown(u8),
 }
 
+#[derive(Debug)]
+pub enum Endianess {
+    Unknown(u8),
+    LittleEndian,
+    BigEndian,
+}
+
+#[derive(Debug)]
 pub enum Abi {
     SystemV,
     NetBSD,
@@ -16,6 +25,7 @@ pub enum Abi {
     Unknown(u8),
 }
 
+#[derive(Debug)]
 pub enum Architecture {
     None,
     Sparc,
@@ -27,6 +37,7 @@ pub enum Architecture {
     Unknown(u16),
 }
 
+#[derive(Debug)]
 pub enum BinaryType {
     None,
     Relocatable,
@@ -36,20 +47,24 @@ pub enum BinaryType {
     Unknown(u16),
 }
 
+#[derive(Debug)]
 pub struct FileMetadata {
     pub name: String,
     pub path: PathBuf,
     pub size: u64,
 }
 
+#[derive(Debug)]
 pub struct ElfHeaderMetadata {
     pub class: ElfClass,
+    pub endianess: Endianess,
     pub abi: Abi,
     pub architecture: Architecture,
     pub binary_type: BinaryType,
     pub entry_point: u64,
 }
 
+#[derive(Debug)]
 pub struct ElfMetadata {
     pub file: FileMetadata,
     pub header: ElfHeaderMetadata,
