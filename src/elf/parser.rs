@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::fs::*;
 use std::io;
 use std::io::prelude::*;
 use std::path::Path;
@@ -23,9 +24,11 @@ use crate::elf::metadata::BinaryType::SharedObject;
 
 use crate::elf::metadata::ElfClass::{self};
 use crate::elf::metadata::ElfHeaderMetadata;
+use crate::elf::metadata::ElfMetadata;
 use crate::elf::metadata::Endianess::BigEndian;
 use crate::elf::metadata::Endianess::LittleEndian;
 use crate::elf::metadata::Endianess::{self};
+use crate::elf::metadata::FileMetadata;
 use crate::elf::parser::ElfError::BadHeader;
 use crate::elf::parser::ElfError::NotAnElfFile;
 
@@ -42,7 +45,7 @@ impl From<io::Error> for ElfError {
     }
 }
 
-pub fn parse_elf(chemin: &Path) -> Result<ElfHeaderMetadata, ElfError> {
+pub fn parse_elf(chemin: &Path) -> Result<ElfMetadata, ElfError> {
     let mut f = File::open(chemin)?;
     check_magic(&mut f)?;
     let class_byte = read_u8(&mut f)?;
@@ -76,7 +79,13 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfHeaderMetadata, ElfError> {
         binary_type,
         entry_point,
     };
-    Ok(header)
+    let name = chemin.file_name().unwrap().to_string_lossy().to_string();
+    let path = chemin.to_string_lossy().to_string();
+    let size = metadata(chemin)?.len();
+
+    let file = FileMetadata { name, path, size };
+    let info_header = ElfMetadata { file, header };
+    Ok(info_header)
 }
 
 fn check_magic(desc: &mut File) -> Result<(), ElfError> {
