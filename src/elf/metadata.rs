@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 #[derive(Debug)]
 pub enum ElfClass {
     Elf32,
@@ -50,7 +48,7 @@ pub enum BinaryType {
 #[derive(Debug)]
 pub struct FileMetadata {
     pub name: String,
-    pub path: PathBuf,
+    pub path: String,
     pub size: u64,
 }
 
