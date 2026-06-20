@@ -8,7 +8,7 @@ build information, and linking properties.
 Lyrem does not try to prove that a binary is vulnerable. Its goal is to provide
 a clear and structured overview of how a Linux binary was built.
 
-## Objective V1
+## Objective 1.0.0
 
 ### File Information
 
