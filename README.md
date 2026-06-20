@@ -19,23 +19,18 @@ a clear and structured overview of how a Linux binary was built.
 ### ELF Information
 
 - ELF class: ELF32 / ELF64
+- Endianess
 - Architecture
 - Binary type
 - Entry point
 
-### Build Information
-
-- Compiler, if available
-- Build ID, if available
-
-### Linking
-
-- Static / Dynamic
-
 ## FuturWork
 
+- Program Header
+- Security Analysis
+- Shared Librairies
 - Add colors and help
-- refactor and optimizing
+- Refactor and optimizing
 
 
 ## License
