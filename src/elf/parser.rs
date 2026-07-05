@@ -187,3 +187,56 @@ fn read_u64(desc: &mut File, endia: &Endianess) -> Result<u64, ElfError> {
     };
     Ok(response)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_class() {
+        assert_eq!(parse_class(2), ElfClass::Elf64);
+        assert_eq!(parse_class(1), ElfClass::Elf32);
+        assert_eq!(parse_class(29), ElfClass::Unknown(29));
+    }
+
+    #[test]
+    fn test_parse_endian() {
+        assert!(matches!(parse_endian(1), Ok(Endianess::LittleEndian)));
+        assert!(matches!(parse_endian(2), Ok(Endianess::BigEndian)));
+        assert!(matches!(parse_endian(42), Err(ElfError::BadHeader)));
+    }
+
+    #[test]
+    fn test_parse_abi() {
+        assert_eq!(parse_abi(0), Abi::SystemV);
+        assert_eq!(parse_abi(2), Abi::NetBSD);
+        assert_eq!(parse_abi(3), Abi::Linux);
+        assert_eq!(parse_abi(9), Abi::FreeBSD);
+        assert_eq!(parse_abi(12), Abi::OpenBSD);
+        assert_eq!(parse_abi(97), Abi::Arm);
+        assert_eq!(parse_abi(255), Abi::Standalone);
+        assert_eq!(parse_abi(185), Abi::Unknown(185));
+    }
+
+    #[test]
+    fn test_parse_binary_type() {
+        assert_eq!(parse_binary_type(0), BinaryType::None);
+        assert_eq!(parse_binary_type(1), BinaryType::Relocatable);
+        assert_eq!(parse_binary_type(2), BinaryType::Executable);
+        assert_eq!(parse_binary_type(3), BinaryType::SharedObject);
+        assert_eq!(parse_binary_type(4), BinaryType::Core);
+        assert_eq!(parse_binary_type(359), BinaryType::Unknown(359));
+    }
+
+    #[test]
+    fn test_parse_architecture() {
+        assert_eq!(parse_architecture(0), Architecture::None);
+        assert_eq!(parse_architecture(2), Architecture::Sparc);
+        assert_eq!(parse_architecture(3), Architecture::X86);
+        assert_eq!(parse_architecture(40), Architecture::Arm);
+        assert_eq!(parse_architecture(62), Architecture::X86_64);
+        assert_eq!(parse_architecture(183), Architecture::AArch64);
+        assert_eq!(parse_architecture(243), Architecture::RiscV);
+        assert_eq!(parse_architecture(789), Architecture::Unknown(789));
+    }
+}

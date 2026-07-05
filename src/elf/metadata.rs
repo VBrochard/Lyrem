@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ElfClass {
     Elf32,
     Elf64,
@@ -17,7 +17,7 @@ impl fmt::Display for ElfClass {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Endianess {
     LittleEndian,
     BigEndian,
@@ -32,7 +32,7 @@ impl fmt::Display for Endianess {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Abi {
     SystemV,
     NetBSD,
@@ -59,7 +59,7 @@ impl fmt::Display for Abi {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Architecture {
     None,
     Sparc,
@@ -86,7 +86,7 @@ impl fmt::Display for Architecture {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BinaryType {
     None,
     Relocatable,
@@ -109,14 +109,14 @@ impl fmt::Display for BinaryType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct FileMetadata {
     pub name: String,
     pub path: String,
     pub size: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ElfHeaderMetadata {
     pub class: ElfClass,
     pub endianess: Endianess,
@@ -126,7 +126,7 @@ pub struct ElfHeaderMetadata {
     pub entry_point: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ElfMetadata {
     pub file: FileMetadata,
     pub header: ElfHeaderMetadata,
