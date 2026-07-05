@@ -18,6 +18,10 @@ jobs:
         with:
           components: clippy, rustfmt
 
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+
       - uses: swatinem/rust-cache@v2
 
       - name: Check formatting
@@ -27,4 +31,4 @@ jobs:
         run: cargo clippy -- -D warnings
 
       - name: Run tests
-        run: cargo test
+        run: cargo nextest run
