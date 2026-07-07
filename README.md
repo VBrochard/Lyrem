@@ -18,20 +18,35 @@ a clear and structured overview of how a Linux binary was built.
 
 ### ELF Information
 
-- ELF class: ELF32 / ELF64
-- Endianess
+- ELF class (ELF32 / ELF64)
+- Endianness
+- ABI
 - Architecture
 - Binary type
 - Entry point
 
-## FuturWork
+### Program Headers
 
-- Program Header
-- Security Analysis
-- Shared Librairies
-- Add colors and help
-- Refactor and optimizing
+- Number of Program Headers
+- Program type
+- Memory permissions (R / W / E)
+- File offset
+- Virtual address
+- Physical address
+- File size
+- Memory size
+- Alignment
 
+## Future Work
+
+- Security analysis (NX, PIE, RELRO, RWX, etc.)
+- Section Headers
+- Shared libraries
+- Dynamic section
+- Symbol tables
+- CLI improvements (`--full`, `--help`, colors)
+- Additional tests and coverage
+- Refactoring and optimization
 
 ## License
 
