@@ -1,5 +1,7 @@
 use std::fmt;
 
+use crate::elf::program::ProgramHeader;
+
 #[derive(Debug, PartialEq)]
 pub enum ElfClass {
     Elf32,
@@ -130,4 +132,5 @@ pub struct ElfHeaderMetadata {
 pub struct ElfMetadata {
     pub file: FileMetadata,
     pub header: ElfHeaderMetadata,
+    pub prog_header: Vec<ProgramHeader>,
 }
