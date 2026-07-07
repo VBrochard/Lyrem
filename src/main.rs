@@ -1,5 +1,8 @@
 mod cli;
 
+use crate::cli::print_error;
+use crate::cli::print_metadata;
+use crate::cli::print_program_headers;
 use lyrem::elf::parser::parse_elf;
 use std::env;
 use std::path::Path;
@@ -8,7 +11,10 @@ fn main() {
     let query = &args[1];
     let chemin = Path::new(&query);
     match parse_elf(chemin) {
-        Ok(metadata) => cli::print_metadata(&metadata),
-        Err(error) => cli::print_error(&error),
+        Ok(metadata) => {
+            print_metadata(&metadata);
+            print_program_headers(&metadata);
+        }
+        Err(error) => print_error(&error),
     }
 }

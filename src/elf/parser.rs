@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::fs::*;
 use std::io;
+use std::io::SeekFrom;
 use std::io::prelude::*;
 use std::path::Path;
 
@@ -31,6 +32,23 @@ use crate::elf::metadata::Endianess::{self};
 use crate::elf::metadata::FileMetadata;
 use crate::elf::parser::ElfError::BadHeader;
 use crate::elf::parser::ElfError::NotAnElfFile;
+
+use crate::elf::program::ProgramFlags;
+use crate::elf::program::ProgramHeader;
+use crate::elf::program::ProgramType;
+use crate::elf::program::ProgramType::Dynamic;
+use crate::elf::program::ProgramType::GnuEhFrame;
+use crate::elf::program::ProgramType::GnuProperty;
+use crate::elf::program::ProgramType::GnuRelro;
+use crate::elf::program::ProgramType::GnuStack;
+use crate::elf::program::ProgramType::Interp;
+use crate::elf::program::ProgramType::Load;
+use crate::elf::program::ProgramType::Note;
+use crate::elf::program::ProgramType::Null;
+use crate::elf::program::ProgramType::Phdr;
+use crate::elf::program::ProgramType::Shlib;
+use crate::elf::program::ProgramType::Tls;
+use crate::elf::program::ProgramType::Unknown;
 
 #[derive(Debug)]
 pub enum ElfError {
@@ -70,7 +88,25 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfMetadata, ElfError> {
         ElfClass::Elf64 => read_u64(&mut f, &endianess)?,
         ElfClass::Unknown(_) => return Err(BadHeader),
     };
-
+    let e_phoff = match &class {
+        ElfClass::Elf32 => read_u32(&mut f, &endianess)? as u64,
+        ElfClass::Elf64 => read_u64(&mut f, &endianess)?,
+        ElfClass::Unknown(_) => return Err(BadHeader),
+    };
+    let _e_shoff = match &class {
+        ElfClass::Elf32 => read_u32(&mut f, &endianess)? as u64,
+        ElfClass::Elf64 => read_u64(&mut f, &endianess)?,
+        ElfClass::Unknown(_) => return Err(BadHeader),
+    };
+    let _e_flags = read_u32(&mut f, &endianess)?;
+    let _e_ehsize = read_u16(&mut f, &endianess)?;
+    let _e_phentsize = read_u16(&mut f, &endianess)?;
+    let e_phnum = read_u16(&mut f, &endianess)?;
+    f.seek(SeekFrom::Start(e_phoff))?;
+    let mut prog_header: Vec<ProgramHeader> = Vec::new();
+    for _ in 0..e_phnum {
+        prog_header.push(parse_program_header(&mut f, &endianess, &class)?);
+    }
     let header = ElfHeaderMetadata {
         class,
         endianess,
@@ -82,9 +118,12 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfMetadata, ElfError> {
     let name = chemin.file_name().unwrap().to_string_lossy().to_string();
     let path = chemin.to_string_lossy().to_string();
     let size = metadata(chemin)?.len();
-
     let file = FileMetadata { name, path, size };
-    let info_header = ElfMetadata { file, header };
+    let info_header = ElfMetadata {
+        file,
+        header,
+        prog_header,
+    };
     Ok(info_header)
 }
 
@@ -186,6 +225,85 @@ fn read_u64(desc: &mut File, endia: &Endianess) -> Result<u64, ElfError> {
         BigEndian => u64::from_be_bytes(buffer),
     };
     Ok(response)
+}
+
+fn parse_program_type(byte: u32) -> ProgramType {
+    match byte {
+        0 => Null,
+        1 => Load,
+        2 => Dynamic,
+        3 => Interp,
+        4 => Note,
+        5 => Shlib,
+        6 => Phdr,
+        7 => Tls,
+        1685382480 => GnuEhFrame,
+        1685382481 => GnuStack,
+        1685382482 => GnuRelro,
+        1685382483 => GnuProperty,
+        x => Unknown(x),
+    }
+}
+
+fn parse_flags(byte: u32) -> ProgramFlags {
+    ProgramFlags {
+        readable: (byte & 4) != 0,
+        writable: (byte & 2) != 0,
+        executable: (byte & 1) != 0,
+    }
+}
+
+fn parse_program_header(
+    desc: &mut File,
+    endia: &Endianess,
+    class: &ElfClass,
+) -> Result<ProgramHeader, ElfError> {
+    match class {
+        ElfClass::Elf32 => {
+            let ptype = parse_program_type(read_u32(desc, endia)?);
+            let poffset = read_u32(desc, endia)? as u64;
+            let pvaddr = read_u32(desc, endia)? as u64;
+            let ppaddr = read_u32(desc, endia)? as u64;
+            let pfilesz = read_u32(desc, endia)? as u64;
+            let pmemsz = read_u32(desc, endia)? as u64;
+            let pflags = parse_flags(read_u32(desc, endia)?);
+            let palign = read_u32(desc, endia)? as u64;
+
+            let ph = ProgramHeader {
+                program_type: ptype,
+                flags: pflags,
+                offset: poffset,
+                virtual_address: pvaddr,
+                physical_address: ppaddr,
+                file_size: pfilesz,
+                memory_size: pmemsz,
+                align: palign,
+            };
+            Ok(ph)
+        }
+        ElfClass::Elf64 => {
+            let ptype = parse_program_type(read_u32(desc, endia)?);
+            let pflags = parse_flags(read_u32(desc, endia)?);
+            let poffset = read_u64(desc, endia)?;
+            let pvaddr = read_u64(desc, endia)?;
+            let ppaddr = read_u64(desc, endia)?;
+            let pfilesz = read_u64(desc, endia)?;
+            let pmemsz = read_u64(desc, endia)?;
+            let palign = read_u64(desc, endia)?;
+            let ph = ProgramHeader {
+                program_type: ptype,
+                flags: pflags,
+                offset: poffset,
+                virtual_address: pvaddr,
+                physical_address: ppaddr,
+                file_size: pfilesz,
+                memory_size: pmemsz,
+                align: palign,
+            };
+            Ok(ph)
+        }
+        ElfClass::Unknown(_) => Err(ElfError::BadHeader),
+    }
 }
 
 #[cfg(test)]
