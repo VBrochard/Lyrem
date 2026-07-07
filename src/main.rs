@@ -2,6 +2,7 @@ mod cli;
 
 use crate::cli::print_error;
 use crate::cli::print_metadata;
+use crate::cli::print_program_headers;
 use lyrem::elf::parser::parse_elf;
 use std::env;
 use std::path::Path;
@@ -12,8 +13,7 @@ fn main() {
     match parse_elf(chemin) {
         Ok(metadata) => {
             print_metadata(&metadata);
-            println!("\nProgram Headers:");
-            println!("{:#?}", metadata.prog_header);
+            print_program_headers(&metadata);
         }
         Err(error) => print_error(&error),
     }

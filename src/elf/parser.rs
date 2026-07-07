@@ -105,7 +105,7 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfMetadata, ElfError> {
     f.seek(SeekFrom::Start(e_phoff))?;
     let mut prog_header: Vec<ProgramHeader> = Vec::new();
     for _ in 0..e_phnum {
-        prog_header.push(parse_header(&mut f, &endianess, &class)?);
+        prog_header.push(parse_program_header(&mut f, &endianess, &class)?);
     }
     let header = ElfHeaderMetadata {
         class,
@@ -253,7 +253,7 @@ fn parse_flags(byte: u32) -> ProgramFlags {
     }
 }
 
-fn parse_header(
+fn parse_program_header(
     desc: &mut File,
     endia: &Endianess,
     class: &ElfClass,

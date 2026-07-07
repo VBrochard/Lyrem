@@ -19,6 +19,30 @@ pub fn print_metadata(metadata: &ElfMetadata) {
     println!("Entry Point  : 0x{:X}", metadata.header.entry_point);
 }
 
+pub fn print_program_headers(metadata: &ElfMetadata) {
+    println!();
+    println!("Program Headers");
+    println!("---------------");
+    println!("Count        : {}", metadata.prog_header.len());
+
+    for (index, header) in metadata.prog_header.iter().enumerate() {
+        println!();
+        println!(
+            "Program Header {}/{}",
+            index + 1,
+            metadata.prog_header.len()
+        );
+        println!("Type         : {}", header.program_type);
+        println!("Flags        : {}", header.flags);
+        println!("Offset       : 0x{:X}", header.offset);
+        println!("Virt. Addr   : 0x{:X}", header.virtual_address);
+        println!("Phys. Addr   : 0x{:X}", header.physical_address);
+        println!("File Size    : {} bytes", header.file_size);
+        println!("Memory Size  : {} bytes", header.memory_size);
+        println!("Align        : 0x{:X}", header.align);
+    }
+}
+
 pub fn print_error(error: &ElfError) {
     match error {
         ElfError::NotAnElfFile => {
