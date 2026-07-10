@@ -37,6 +37,34 @@ a clear and structured overview of how a Linux binary was built.
 - Memory size
 - Alignment
 
+## Usage
+
+Lyrem takes an ELF binary path as input:
+
+```bash
+lyrem /usr/bin/bash
+```
+
+By default, it displays a human-readable report containing file information,
+ELF metadata, and Program Headers.
+To obtain machine-readable JSON output:
+
+```bash
+lyrem --json /usr/bin/bash
+```
+
+The output can also be redirected to a file:
+
+```bash
+lyrem --json /usr/bin/bash > bash.json
+```
+
+For more information about available options:
+
+```bash
+lyrem --help
+```
+
 ## Future Work
 
 - Security analysis (NX, PIE, RELRO, RWX, etc.)
