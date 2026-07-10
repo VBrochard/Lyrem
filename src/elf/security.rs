@@ -72,11 +72,12 @@ pub struct SecurityAnalysis {
 
 pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
     let bin = &metadata.header.binary_type;
+    let rwx_header: Vec<ProgramHeader> = Vec::new();
     let mut response = SecurityAnalysis {
         nx: Status::Unknown,
         pie: Status::Unknown,
-        relro: RelroStatus::Unknown,
-        rwx_segment: Vec::new(),
+        relro: RelroStatus::None,
+        rwx_segment: rwx_header,
         has_dynamic_segment: false,
         has_interpreter: false,
     };
@@ -90,6 +91,7 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
                 }
             }
             ProgramType::Interp => {
+                response.has_interpreter = true;
                 if bin == &Executable {
                     response.pie = Disabled
                 }
@@ -99,7 +101,15 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
                     response.pie = Unknown
                 }
             }
+            ProgramType::GnuRelro => response.relro = RelroStatus::Present,
+            ProgramType::Dynamic => response.has_dynamic_segment = true,
             _ => {}
+        }
+        if program_header.flags.executable
+            && program_header.flags.writable
+            && program_header.flags.readable
+        {
+            response.rwx_segment.push(program_header.clone())
         }
     }
     response

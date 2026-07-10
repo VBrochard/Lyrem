@@ -16,21 +16,26 @@ struct Cli {
     path: PathBuf,
     #[arg(long)]
     json: bool,
+    #[arg(long)]
+    full: bool,
 }
 fn main() {
     let cli = Cli::parse();
     let chemin = Path::new(&cli.path);
     match parse_elf(chemin) {
         Ok(metadata) => {
+            let analyse = analyze(&metadata);
             if cli.json {
                 match serde_json::to_string_pretty(&metadata) {
                     Ok(json) => println!("{json}"),
                     Err(error) => eprintln!("JSON error: {error}"),
                 }
-            } else {
+            } else if cli.full {
                 print_metadata(&metadata);
+                print_security_analysis(&analyse);
                 print_program_headers(&metadata);
-                print_security_analysis(&analyze(&metadata));
+            } else {
+                print_security_analysis(&analyse);
             }
         }
         Err(error) => print_error(&error),
