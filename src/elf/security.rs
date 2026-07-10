@@ -80,7 +80,6 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
         has_dynamic_segment: false,
         has_interpreter: false,
     };
-    response.pie = Unknown;
     for program_header in &metadata.prog_header {
         match &program_header.program_type {
             ProgramType::GnuStack => {
