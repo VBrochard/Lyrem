@@ -91,13 +91,13 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
                 }
             }
             ProgramType::Interp => {
+                if bin == &Executable {
+                    response.pie = Disabled
+                }
                 if bin == &SharedObject {
                     response.pie = Enabled
                 } else {
                     response.pie = Unknown
-                }
-                if bin == &Executable {
-                    response.pie = Disabled
                 }
             }
             _ => {}
