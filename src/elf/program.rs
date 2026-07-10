@@ -1,6 +1,8 @@
 use std::fmt;
 
-#[derive(Debug, PartialEq)]
+use serde::Serialize;
+
+#[derive(Debug, PartialEq, Serialize)]
 pub enum ProgramType {
     Null,
     Load,
@@ -37,7 +39,7 @@ impl fmt::Display for ProgramType {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct ProgramFlags {
     pub readable: bool,
     pub writable: bool,
@@ -56,7 +58,7 @@ impl fmt::Display for ProgramFlags {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct ProgramHeader {
     pub program_type: ProgramType,
     pub flags: ProgramFlags,

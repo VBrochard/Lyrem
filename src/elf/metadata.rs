@@ -1,8 +1,10 @@
 use std::fmt;
 
+use serde::Serialize;
+
 use crate::elf::program::ProgramHeader;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum ElfClass {
     Elf32,
     Elf64,
@@ -19,7 +21,7 @@ impl fmt::Display for ElfClass {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum Endianess {
     LittleEndian,
     BigEndian,
@@ -34,7 +36,7 @@ impl fmt::Display for Endianess {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum Abi {
     SystemV,
     NetBSD,
@@ -61,7 +63,7 @@ impl fmt::Display for Abi {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum Architecture {
     None,
     Sparc,
@@ -88,7 +90,7 @@ impl fmt::Display for Architecture {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum BinaryType {
     None,
     Relocatable,
@@ -111,14 +113,14 @@ impl fmt::Display for BinaryType {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct FileMetadata {
     pub name: String,
     pub path: String,
     pub size: u64,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct ElfHeaderMetadata {
     pub class: ElfClass,
     pub endianess: Endianess,
@@ -128,7 +130,7 @@ pub struct ElfHeaderMetadata {
     pub entry_point: u64,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct ElfMetadata {
     pub file: FileMetadata,
     pub header: ElfHeaderMetadata,
