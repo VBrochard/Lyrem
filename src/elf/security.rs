@@ -1,9 +1,12 @@
 use core::fmt;
 
 use crate::elf::{
-    metadata::ElfMetadata,
+    metadata::{
+        BinaryType::{Executable, SharedObject},
+        ElfMetadata,
+    },
     program::{ProgramHeader, ProgramType},
-    security::Status::{Disabled, Enabled},
+    security::Status::{Disabled, Enabled, Unknown},
 };
 
 #[derive(Debug, PartialEq)]
@@ -68,6 +71,7 @@ pub struct SecurityAnalysis {
 }
 
 pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
+    let bin = &metadata.header.binary_type;
     let mut response = SecurityAnalysis {
         nx: Status::Unknown,
         pie: Status::Unknown,
@@ -76,13 +80,27 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
         has_dynamic_segment: false,
         has_interpreter: false,
     };
+    response.pie = Unknown;
     for program_header in &metadata.prog_header {
-        if program_header.program_type == ProgramType::GnuStack {
-            if program_header.flags.executable {
-                response.nx = Disabled
-            } else {
-                response.nx = Enabled
+        match &program_header.program_type {
+            ProgramType::GnuStack => {
+                if program_header.flags.executable {
+                    response.nx = Disabled
+                } else {
+                    response.nx = Enabled
+                }
             }
+            ProgramType::Interp => {
+                if bin == &SharedObject {
+                    response.pie = Enabled
+                } else {
+                    response.pie = Unknown
+                }
+                if bin == &Executable {
+                    response.pie = Disabled
+                }
+            }
+            _ => {}
         }
     }
     response
