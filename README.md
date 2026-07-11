@@ -54,8 +54,14 @@ Lyrem takes an ELF binary path as input:
 lyrem /usr/bin/bash
 ```
 
-By default, it displays a human-readable report containing file information,
-ELF metadata, and Program Headers.
+By default, it displays a security-focused analysis of the binary.
+To display the full human-readable report, including file information, ELF
+metadata, security analysis, and Program Headers:
+
+```bash
+lyrem --full /usr/bin/bash
+```
+
 To obtain machine-readable JSON output:
 
 ```bash
