@@ -37,6 +37,15 @@ a clear and structured overview of how a Linux binary was built.
 - Memory size
 - Alignment
 
+### Security Analysis
+
+- NX status
+- PIE status
+- RELRO presence
+- Dynamic segment detection
+- Interpreter detection
+- RWX LOAD segment detection
+
 ## Usage
 
 Lyrem takes an ELF binary path as input:
@@ -45,8 +54,14 @@ Lyrem takes an ELF binary path as input:
 lyrem /usr/bin/bash
 ```
 
-By default, it displays a human-readable report containing file information,
-ELF metadata, and Program Headers.
+By default, it displays a security-focused analysis of the binary.
+To display the full human-readable report, including file information, ELF
+metadata, security analysis, and Program Headers:
+
+```bash
+lyrem --full /usr/bin/bash
+```
+
 To obtain machine-readable JSON output:
 
 ```bash
@@ -67,13 +82,16 @@ lyrem --help
 
 ## Future Work
 
-- Security analysis (NX, PIE, RELRO, RWX, etc.)
+- Improve security analysis accuracy
+- Distinguish partial and full RELRO using the Dynamic Section
 - Section Headers
 - Shared libraries
-- Dynamic section
+- Dynamic Section
 - Symbol tables
-- CLI improvements (`--full`, `--help`, colors)
+- CLI improvements (colors, output modes)
 - Additional tests and coverage
+- Replace committed test binaries with generated test assets
+- Add scripts to build ELF test fixtures from source
 - Refactoring and optimization
 
 ## License

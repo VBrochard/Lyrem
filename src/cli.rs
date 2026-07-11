@@ -1,5 +1,6 @@
 use lyrem::elf::metadata::ElfMetadata;
 use lyrem::elf::parser::ElfError;
+use lyrem::elf::security::SecurityAnalysis;
 
 pub fn print_metadata(metadata: &ElfMetadata) {
     println!("File Information");
@@ -40,6 +41,48 @@ pub fn print_program_headers(metadata: &ElfMetadata) {
         println!("File Size    : {} bytes", header.file_size);
         println!("Memory Size  : {} bytes", header.memory_size);
         println!("Align        : 0x{:X}", header.align);
+    }
+}
+
+pub fn print_security_analysis(analysis: &SecurityAnalysis) {
+    println!();
+    println!("Security Analysis");
+    println!("-----------------");
+    println!("NX               : {}", analysis.nx);
+    println!("PIE              : {}", analysis.pie);
+    println!("RELRO            : {}", analysis.relro);
+    println!(
+        "Dynamic Segment  : {}",
+        if analysis.has_dynamic_segment {
+            "Yes"
+        } else {
+            "No"
+        }
+    );
+    println!(
+        "Interpreter      : {}",
+        if analysis.has_interpreter {
+            "Yes"
+        } else {
+            "No"
+        }
+    );
+
+    if analysis.rwx_segment.is_empty() {
+        println!("RWX Segments     : None");
+    } else {
+        println!("RWX Segments     : {}", analysis.rwx_segment.len());
+
+        for (index, segment) in analysis.rwx_segment.iter().enumerate() {
+            println!();
+            println!("RWX Segment {}/{}", index + 1, analysis.rwx_segment.len());
+            println!("Type             : {}", segment.program_type);
+            println!("Flags            : {}", segment.flags);
+            println!("Offset           : 0x{:X}", segment.offset);
+            println!("Virt. Addr       : 0x{:X}", segment.virtual_address);
+            println!("File Size        : {} bytes", segment.file_size);
+            println!("Memory Size      : {} bytes", segment.memory_size);
+        }
     }
 }
 
