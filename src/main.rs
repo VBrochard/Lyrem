@@ -1,12 +1,10 @@
-mod cli;
-
-use crate::cli::print_error;
-use crate::cli::print_metadata;
-use crate::cli::print_program_headers;
-use crate::cli::print_security_analysis;
 use clap::Parser;
 use lyrem::elf::parser::parse_elf;
 use lyrem::elf::security::analyze;
+use lyrem::output::cli::print_error;
+use lyrem::output::cli::print_metadata;
+use lyrem::output::cli::print_program_headers;
+use lyrem::output::cli::print_security_analysis;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -24,8 +22,8 @@ struct Cli {
 }
 fn main() {
     let cli = Cli::parse();
-    let chemin = Path::new(&cli.path);
-    match parse_elf(chemin) {
+    let path = Path::new(&cli.path);
+    match parse_elf(path) {
         Ok(metadata) => {
             let analyse = analyze(&metadata);
             if cli.json {

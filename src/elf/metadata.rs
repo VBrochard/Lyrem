@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde::Serialize;
 
-use crate::elf::program::ProgramHeader;
+use crate::elf::{dynamic::DynamicEntry, program::ProgramHeader};
 
 #[derive(Debug, PartialEq, Serialize)]
 pub enum ElfClass {
@@ -103,7 +103,7 @@ pub enum BinaryType {
 impl fmt::Display for BinaryType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            BinaryType::None => write!(f, "No specific architecture"),
+            BinaryType::None => write!(f, "No specific Binary Type"),
             BinaryType::Relocatable => write!(f, "Relocatable file"),
             BinaryType::Executable => write!(f, "Executable file"),
             BinaryType::SharedObject => write!(f, "Shared Object"),
@@ -116,7 +116,7 @@ impl fmt::Display for BinaryType {
 #[derive(Debug, PartialEq, Serialize)]
 pub struct FileMetadata {
     pub name: String,
-    pub path: String,
+    pub clean_path: String,
     pub size: u64,
 }
 
@@ -135,4 +135,5 @@ pub struct ElfMetadata {
     pub file: FileMetadata,
     pub header: ElfHeaderMetadata,
     pub prog_header: Vec<ProgramHeader>,
+    pub dyn_entry: Vec<DynamicEntry>,
 }
