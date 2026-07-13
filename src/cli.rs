@@ -50,7 +50,6 @@ pub fn print_security_analysis(analysis: &SecurityAnalysis) {
     println!("-----------------");
     println!("NX               : {}", analysis.nx);
     println!("PIE              : {}", analysis.pie);
-    println!("RELRO            : {}", analysis.relro);
     println!(
         "Dynamic Segment  : {}",
         if analysis.has_dynamic_segment {
@@ -59,6 +58,7 @@ pub fn print_security_analysis(analysis: &SecurityAnalysis) {
             "No"
         }
     );
+    println!("RELRO            : {}", analysis.relro);
     println!(
         "Interpreter      : {}",
         if analysis.has_interpreter {
@@ -98,6 +98,10 @@ pub fn print_error(error: &ElfError) {
 
         ElfError::Io(err) => {
             eprintln!("I/O Error: {}", err);
+        }
+
+        ElfError::BadDynamicEntry => {
+            eprintln!("Error: Much Dynamic Entry");
         }
     }
 }

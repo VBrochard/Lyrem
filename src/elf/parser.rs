@@ -5,6 +5,19 @@ use std::io::SeekFrom;
 use std::io::prelude::*;
 use std::path::Path;
 
+use crate::elf::dynamic::DynamicEntry;
+use crate::elf::dynamic::DynamicTag;
+use crate::elf::dynamic::DynamicTag::BindNow;
+use crate::elf::dynamic::DynamicTag::Flags;
+use crate::elf::dynamic::DynamicTag::Flags1;
+use crate::elf::dynamic::DynamicTag::Needed;
+use crate::elf::dynamic::DynamicTag::Null;
+use crate::elf::dynamic::DynamicTag::RPath;
+use crate::elf::dynamic::DynamicTag::RunPath;
+use crate::elf::dynamic::DynamicTag::Soname;
+use crate::elf::dynamic::DynamicTag::StrSz;
+use crate::elf::dynamic::DynamicTag::StrTab;
+use crate::elf::dynamic::DynamicTag::Unknown;
 use crate::elf::metadata::Abi;
 use crate::elf::metadata::Architecture;
 use crate::elf::metadata::Architecture::AArch64;
@@ -44,17 +57,16 @@ use crate::elf::program::ProgramType::GnuStack;
 use crate::elf::program::ProgramType::Interp;
 use crate::elf::program::ProgramType::Load;
 use crate::elf::program::ProgramType::Note;
-use crate::elf::program::ProgramType::Null;
 use crate::elf::program::ProgramType::Phdr;
 use crate::elf::program::ProgramType::Shlib;
 use crate::elf::program::ProgramType::Tls;
-use crate::elf::program::ProgramType::Unknown;
 
 #[derive(Debug)]
 pub enum ElfError {
     Io(io::Error),
     NotAnElfFile,
     BadHeader,
+    BadDynamicEntry,
 }
 
 impl From<io::Error> for ElfError {
@@ -107,6 +119,7 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfMetadata, ElfError> {
     for _ in 0..e_phnum {
         prog_header.push(parse_program_header(&mut f, &endianess, &class)?);
     }
+    let dyn_entry = parse_dynamic(&prog_header, &mut f, &endianess, &class)?;
     let header = ElfHeaderMetadata {
         class,
         endianess,
@@ -123,6 +136,7 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfMetadata, ElfError> {
         file,
         header,
         prog_header,
+        dyn_entry,
     };
     Ok(info_header)
 }
@@ -229,7 +243,7 @@ fn read_u64(desc: &mut File, endia: &Endianess) -> Result<u64, ElfError> {
 
 fn parse_program_type(byte: u32) -> ProgramType {
     match byte {
-        0 => Null,
+        0 => ProgramType::Null,
         1 => Load,
         2 => Dynamic,
         3 => Interp,
@@ -241,7 +255,7 @@ fn parse_program_type(byte: u32) -> ProgramType {
         1685382481 => GnuStack,
         1685382482 => GnuRelro,
         1685382483 => GnuProperty,
-        x => Unknown(x),
+        x => ProgramType::Unknown(x),
     }
 }
 
@@ -303,6 +317,79 @@ fn parse_program_header(
             Ok(ph)
         }
         ElfClass::Unknown(_) => Err(ElfError::BadHeader),
+    }
+}
+
+fn parse_tag(byte: i64) -> DynamicTag {
+    match byte {
+        0 => Null,
+        1 => Needed,
+        5 => StrTab,
+        10 => StrSz,
+        14 => Soname,
+        15 => RPath,
+        24 => BindNow,
+        29 => RunPath,
+        30 => Flags,
+        1879048187 => Flags1,
+        x => Unknown(x),
+    }
+}
+
+fn parse_dynamic(
+    prog: &[ProgramHeader],
+    desc: &mut File,
+    endia: &Endianess,
+    class: &ElfClass,
+) -> Result<Vec<DynamicEntry>, ElfError> {
+    let mut dynamic_header = None;
+    let mut dyn_entry: Vec<DynamicEntry> = Vec::new();
+    for header in prog {
+        if header.program_type == ProgramType::Dynamic {
+            dynamic_header = Some(header);
+            break;
+        }
+    }
+    let dynamic_header = match dynamic_header {
+        Some(header) => header,
+        None => return Ok(Vec::new()),
+    };
+    desc.seek(SeekFrom::Start(dynamic_header.offset))?;
+
+    match class {
+        ElfClass::Elf32 => {
+            let mut byte_read = 0;
+            while byte_read < dynamic_header.file_size {
+                let tag = parse_tag(read_u32(desc, endia)? as i64);
+                if tag == DynamicTag::Null {
+                    break;
+                }
+                let entry = DynamicEntry {
+                    tag,
+                    value: read_u32(desc, endia)? as u64,
+                };
+                byte_read += 8;
+                dyn_entry.push(entry);
+            }
+            Ok(dyn_entry)
+        }
+        ElfClass::Elf64 => {
+            let mut byte_read = 0;
+            while byte_read < dynamic_header.file_size {
+                let tag = parse_tag(read_u64(desc, endia)? as i64);
+                if tag == DynamicTag::Null {
+                    break;
+                }
+                let entry = DynamicEntry {
+                    tag,
+                    value: read_u64(desc, endia)?,
+                };
+                byte_read += 16;
+                dyn_entry.push(entry);
+            }
+            Ok(dyn_entry)
+        }
+        ElfClass::Unknown(_) => Err(ElfError::BadDynamicEntry),
     }
 }
 

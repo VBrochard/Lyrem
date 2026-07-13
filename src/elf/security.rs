@@ -1,12 +1,16 @@
 use core::fmt;
 
 use crate::elf::{
+    dynamic::DynamicTag::{BindNow, Flags, Flags1},
     metadata::{
         BinaryType::{Executable, SharedObject},
         ElfMetadata,
     },
     program::{ProgramHeader, ProgramType},
-    security::Status::{Disabled, Enabled, Unknown},
+    security::{
+        RelroStatus::{Full, Partial},
+        Status::{Disabled, Enabled, Unknown},
+    },
 };
 
 #[derive(Debug, PartialEq)]
@@ -29,7 +33,8 @@ impl fmt::Display for Status {
 #[derive(Debug, PartialEq)]
 pub enum RelroStatus {
     None,
-    Present,
+    Partial,
+    Full,
     Unknown,
 }
 
@@ -37,7 +42,8 @@ impl fmt::Display for RelroStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             RelroStatus::None => write!(f, "None"),
-            RelroStatus::Present => write!(f, "Present"),
+            RelroStatus::Partial => write!(f, "Partial"),
+            RelroStatus::Full => write!(f, "Full"),
             RelroStatus::Unknown => write!(f, "Unknown"),
         }
     }
@@ -72,6 +78,7 @@ pub struct SecurityAnalysis {
 
 pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
     let bin = &metadata.header.binary_type;
+    let entry = &metadata.dyn_entry;
     let rwx_header: Vec<ProgramHeader> = Vec::new();
     let mut response = SecurityAnalysis {
         nx: Status::Unknown,
@@ -101,7 +108,20 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
                     response.pie = Unknown
                 }
             }
-            ProgramType::GnuRelro => response.relro = RelroStatus::Present,
+            ProgramType::GnuRelro => {
+                response.relro = Partial;
+                for i in entry {
+                    if i.tag == BindNow {
+                        response.relro = Full
+                    }
+                    if i.tag == Flags && i.value == 0x8 {
+                        response.relro = Full
+                    }
+                    if i.tag == Flags1 && i.value == 0x1 {
+                        response.relro = Full
+                    }
+                }
+            }
             ProgramType::Dynamic => response.has_dynamic_segment = true,
             _ => {}
         }

@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde::Serialize;
 
-use crate::elf::program::ProgramHeader;
+use crate::elf::{dynamic::DynamicEntry, program::ProgramHeader};
 
 #[derive(Debug, PartialEq, Serialize)]
 pub enum ElfClass {
@@ -135,4 +135,5 @@ pub struct ElfMetadata {
     pub file: FileMetadata,
     pub header: ElfHeaderMetadata,
     pub prog_header: Vec<ProgramHeader>,
+    pub dyn_entry: Vec<DynamicEntry>,
 }
