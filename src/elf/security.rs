@@ -99,26 +99,26 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
             }
             ProgramType::Interp => {
                 response.has_interpreter = true;
-                if bin == &Executable {
-                    response.pie = Disabled
-                }
-                if bin == &SharedObject {
-                    response.pie = Enabled
-                } else {
-                    response.pie = Unknown
+                match bin {
+                    Executable => response.pie = Disabled,
+                    SharedObject => response.pie = Enabled,
+                    _ => response.pie = Unknown,
                 }
             }
             ProgramType::GnuRelro => {
                 response.relro = Partial;
                 for i in entry {
                     if i.tag == BindNow {
-                        response.relro = Full
+                        response.relro = Full;
+                        break;
                     }
-                    if i.tag == Flags && i.value == 0x8 {
-                        response.relro = Full
+                    if i.tag == Flags && (i.value & 0x8) != 0 {
+                        response.relro = Full;
+                        break;
                     }
-                    if i.tag == Flags1 && i.value == 0x1 {
-                        response.relro = Full
+                    if i.tag == Flags1 && (i.value & 0x1) != 0 {
+                        response.relro = Full;
+                        break;
                     }
                 }
             }
