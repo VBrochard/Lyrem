@@ -28,6 +28,9 @@ jobs:
       - name: Run Clippy
         run: cargo clippy -- -D warnings
 
+      - name: Build tests assets
+        run: make -C tests/assets/src
+
       - name: Run tests
         run: cargo nextest run
 
@@ -48,6 +51,9 @@ jobs:
 
       - name: Install cargo-nextest
         uses: taiki-e/install-action@nextest
+
+      - name: Build test assets
+        uses: make -C tests/assets/src
 
       - name: Run coverage and HTML
         run: cargo llvm-cov nextest --html
