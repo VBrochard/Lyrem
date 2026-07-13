@@ -1,6 +1,6 @@
-use lyrem::elf::metadata::ElfMetadata;
-use lyrem::elf::parser::ElfError;
-use lyrem::elf::security::SecurityAnalysis;
+use crate::elf::metadata::ElfMetadata;
+use crate::elf::parser::ElfError;
+use crate::elf::security::SecurityAnalysis;
 
 pub fn print_metadata(metadata: &ElfMetadata) {
     println!("File Information");

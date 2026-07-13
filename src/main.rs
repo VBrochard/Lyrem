@@ -1,12 +1,10 @@
-mod cli;
-
-use crate::cli::print_error;
-use crate::cli::print_metadata;
-use crate::cli::print_program_headers;
-use crate::cli::print_security_analysis;
 use clap::Parser;
 use lyrem::elf::parser::parse_elf;
 use lyrem::elf::security::analyze;
+use lyrem::output::cli::print_error;
+use lyrem::output::cli::print_metadata;
+use lyrem::output::cli::print_program_headers;
+use lyrem::output::cli::print_security_analysis;
 use std::path::Path;
 use std::path::PathBuf;
 
