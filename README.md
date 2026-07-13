@@ -87,9 +87,6 @@ lyrem --help
 - Shared libraries
 - Symbol tables
 - CLI improvements (colors, output modes)
-- Additional tests and coverage
-- Replace committed test binaries with generated test assets
-- Add scripts to build ELF test fixtures from source
 - Refactoring and optimization
 
 ## License
