@@ -75,8 +75,8 @@ impl From<io::Error> for ElfError {
     }
 }
 
-pub fn parse_elf(chemin: &Path) -> Result<ElfMetadata, ElfError> {
-    let mut f = File::open(chemin)?;
+pub fn parse_elf(path: &Path) -> Result<ElfMetadata, ElfError> {
+    let mut f = File::open(path)?;
     check_magic(&mut f)?;
     let class_byte = read_u8(&mut f)?;
     let class = parse_class(class_byte);
@@ -128,10 +128,14 @@ pub fn parse_elf(chemin: &Path) -> Result<ElfMetadata, ElfError> {
         binary_type,
         entry_point,
     };
-    let name = chemin.file_name().unwrap().to_string_lossy().to_string();
-    let path = chemin.to_string_lossy().to_string();
-    let size = metadata(chemin)?.len();
-    let file = FileMetadata { name, path, size };
+    let name = path.file_name().unwrap().to_string_lossy().to_string();
+    let clean_path = path.to_string_lossy().to_string();
+    let size = metadata(path)?.len();
+    let file = FileMetadata {
+        name,
+        clean_path,
+        size,
+    };
     let info_header = ElfMetadata {
         file,
         header,

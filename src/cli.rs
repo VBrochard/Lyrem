@@ -6,7 +6,7 @@ pub fn print_metadata(metadata: &ElfMetadata) {
     println!("File Information");
     println!("----------------");
     println!("Name         : {}", metadata.file.name);
-    println!("Path         : {}", metadata.file.path);
+    println!("Path         : {}", metadata.file.clean_path);
     println!("Size         : {} bytes", metadata.file.size);
 
     println!();

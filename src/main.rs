@@ -24,8 +24,8 @@ struct Cli {
 }
 fn main() {
     let cli = Cli::parse();
-    let chemin = Path::new(&cli.path);
-    match parse_elf(chemin) {
+    let path = Path::new(&cli.path);
+    match parse_elf(path) {
         Ok(metadata) => {
             let analyse = analyze(&metadata);
             if cli.json {
