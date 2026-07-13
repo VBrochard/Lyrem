@@ -34,7 +34,7 @@ $(ASSETS_DIR)/rwx: rwx.s | $(ASSETS_DIR)
 	rm -f $(ASSETS_DIR)/rwx.o
 
 $(ASSETS_DIR)/hello_pie_partial_relro: hello.c | $(ASSETS_DIR)
-	$(CC) hello.c -fPIE -pie -Wl,-z,relro -o $(ASSETS_DIR)/hello_pie_partial_relro
+	$(CC) hello.c -fPIE -pie -Wl,-z,relro,-z,lazy -o $(ASSETS_DIR)/hello_pie_partial_relro
 
 $(ASSETS_DIR)/hello_nopie_full_relro: hello.c | $(ASSETS_DIR)
 	$(CC) hello.c -no-pie -Wl,-z,relro,-z,now -o $(ASSETS_DIR)/hello_nopie_full_relro
