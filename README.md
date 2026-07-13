@@ -83,10 +83,8 @@ lyrem --help
 ## Future Work
 
 - Improve security analysis accuracy
-- Distinguish partial and full RELRO using the Dynamic Section
 - Section Headers
 - Shared libraries
-- Dynamic Section
 - Symbol tables
 - CLI improvements (colors, output modes)
 - Additional tests and coverage
