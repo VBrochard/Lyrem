@@ -448,4 +448,19 @@ mod tests {
         assert_eq!(parse_architecture(243), Architecture::RiscV);
         assert_eq!(parse_architecture(789), Architecture::Unknown(789));
     }
+
+    #[test]
+    fn test_parse_tag() {
+        assert_eq!(parse_tag(0), DynamicTag::Null);
+        assert_eq!(parse_tag(1), DynamicTag::Needed);
+        assert_eq!(parse_tag(5), DynamicTag::StrTab);
+        assert_eq!(parse_tag(10), DynamicTag::StrSz);
+        assert_eq!(parse_tag(14), DynamicTag::Soname);
+        assert_eq!(parse_tag(15), DynamicTag::RPath);
+        assert_eq!(parse_tag(24), DynamicTag::BindNow);
+        assert_eq!(parse_tag(29), DynamicTag::RunPath);
+        assert_eq!(parse_tag(30), DynamicTag::Flags);
+        assert_eq!(parse_tag(1879048187), DynamicTag::Flags1);
+        assert_eq!(parse_tag(458), DynamicTag::Unknown(458));
+    }
 }

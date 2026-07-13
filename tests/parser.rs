@@ -6,7 +6,7 @@ mod tests {
     use lyrem::elf::parser::*;
     #[test]
     fn test_parse_elf_exe() {
-        let path = Path::new("tests/assets/hello");
+        let path = Path::new("tests/assets/generated/hello");
         let result = parse_elf(path);
         assert!(result.is_ok());
         let elf = result.unwrap();
@@ -18,7 +18,7 @@ mod tests {
 
     #[test]
     fn test_parse_elf_so() {
-        let path = Path::new("tests/assets/libhello.so");
+        let path = Path::new("tests/assets/generated/libhello.so");
         let result = parse_elf(path);
         assert!(result.is_ok());
         let elf = result.unwrap();
