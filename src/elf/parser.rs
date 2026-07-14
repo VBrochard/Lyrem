@@ -44,6 +44,7 @@ use crate::elf::metadata::Endianness::LittleEndian;
 use crate::elf::metadata::Endianness::{self};
 use crate::elf::metadata::FileMetadata;
 use crate::elf::parser::ElfError::BadHeader;
+use crate::elf::parser::ElfError::InvalidPath;
 use crate::elf::parser::ElfError::NotAnElfFile;
 
 use crate::elf::program::ProgramFlags;
@@ -68,6 +69,8 @@ pub enum ElfError {
     Io(io::Error),
     /// The file does not start with the ELF magic number.
     NotAnElfFile,
+    /// The provided file path is not valid for ELF analysis.
+    InvalidPath,
     /// The ELF header or one of its mandatory fields is malformed.
     BadHeader,
     /// A Dynamic Section entry could not be parsed.
@@ -138,7 +141,11 @@ pub fn parse_elf(path: &Path) -> Result<ElfMetadata, ElfError> {
         binary_type,
         entry_point,
     };
-    let name = path.file_name().unwrap().to_string_lossy().to_string();
+    let name = path
+        .file_name()
+        .ok_or(InvalidPath)?
+        .to_string_lossy()
+        .to_string();
     let clean_path = path.to_string_lossy().to_string();
     let size = metadata(path)?.len();
     let file = FileMetadata {

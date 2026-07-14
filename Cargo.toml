@@ -1,6 +1,6 @@
 [package]
 name = "lyrem"
-version = "0.9.5"
+version = "1.0.0"
 edition = "2024"
 authors = ["Vincent Brochard"]
 description = "Linux ELF security auditor"
@@ -12,3 +12,6 @@ readme = "README.md"
 clap = { version = "4.6.1", features = ["derive"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
+
+[profile.release]
+lto = true

@@ -101,7 +101,11 @@ pub fn print_error(error: &ElfError) {
         }
 
         ElfError::BadDynamicEntry => {
-            eprintln!("Error: multiple dynamic segments found");
+            eprintln!("Error: multiple ELF dynamic segments found");
+        }
+
+        ElfError::InvalidPath => {
+            eprintln!("Error: path does not contain a valid file name");
         }
     }
 }
