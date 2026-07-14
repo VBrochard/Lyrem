@@ -1,5 +1,7 @@
 use core::fmt;
 
+use serde::Serialize;
+
 use crate::elf::{
     dynamic::DynamicTag::{BindNow, Flags, Flags1},
     metadata::{
@@ -13,7 +15,7 @@ use crate::elf::{
     },
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum Status {
     Enabled,
     Disabled,
@@ -30,7 +32,7 @@ impl fmt::Display for Status {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum RelroStatus {
     None,
     Partial,
@@ -49,7 +51,7 @@ impl fmt::Display for RelroStatus {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum DynamicLinkingStatus {
     Dynamic,
     Static,
@@ -71,7 +73,7 @@ impl fmt::Display for DynamicLinkingStatus {
 /// This structure is derived from the ELF header, Program Headers, and Dynamic
 /// Section entries. It summarizes common binary hardening properties such as
 /// NX, PIE, RELRO, and RWX memory mappings.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct SecurityAnalysis {
     /// No-eXecute stack status.
     pub nx: Status,
