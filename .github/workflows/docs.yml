@@ -26,6 +26,22 @@ jobs:
       - name: Build Rust documentation
         run: cargo doc --no-deps
 
+      - name: Add documentation redirect
+        run: |
+          cat > target/doc/index.html <<'EOF'
+          <!doctype html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta http-equiv="refresh" content="0; url=lyrem/">
+              <title>Lyrem Documentation</title>
+            </head>
+            <body>
+              <p>Redirecting to <a href="lyrem/">Lyrem documentation</a>.</p>
+            </body>
+          </html>
+          EOF
+
       - name: Upload documentation artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3

@@ -22,16 +22,16 @@ impl fmt::Display for ElfClass {
 }
 
 #[derive(Debug, PartialEq, Serialize)]
-pub enum Endianess {
+pub enum Endianness {
     LittleEndian,
     BigEndian,
 }
 
-impl fmt::Display for Endianess {
+impl fmt::Display for Endianness {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Endianess::LittleEndian => write!(f, "Little Endian"),
-            Endianess::BigEndian => write!(f, "Big Endian"),
+            Endianness::LittleEndian => write!(f, "Little Endian"),
+            Endianness::BigEndian => write!(f, "Big Endian"),
         }
     }
 }
@@ -113,6 +113,7 @@ impl fmt::Display for BinaryType {
     }
 }
 
+/// Basic filesystem metadata for the analyzed file.
 #[derive(Debug, PartialEq, Serialize)]
 pub struct FileMetadata {
     pub name: String,
@@ -120,16 +121,22 @@ pub struct FileMetadata {
     pub size: u64,
 }
 
+/// Parsed subset of the ELF header used by Lyrem.
 #[derive(Debug, PartialEq, Serialize)]
 pub struct ElfHeaderMetadata {
     pub class: ElfClass,
-    pub endianess: Endianess,
+    pub endianness: Endianness,
     pub abi: Abi,
     pub architecture: Architecture,
     pub binary_type: BinaryType,
     pub entry_point: u64,
 }
 
+/// Top-level metadata extracted from an ELF file.
+///
+/// This structure groups file-level information, the ELF header, Program
+/// Headers, and Dynamic Section entries into a single representation used by
+/// Lyrem's output and security analysis layers.
 #[derive(Debug, PartialEq, Serialize)]
 pub struct ElfMetadata {
     pub file: FileMetadata,

@@ -13,7 +13,7 @@ pub fn print_metadata(metadata: &ElfMetadata) {
     println!("ELF Header");
     println!("----------");
     println!("Class        : {}", metadata.header.class);
-    println!("Endianess    : {}", metadata.header.endianess);
+    println!("Endianness    : {}", metadata.header.endianness);
     println!("ABI          : {}", metadata.header.abi);
     println!("Architecture : {}", metadata.header.architecture);
     println!("Type         : {}", metadata.header.binary_type);
@@ -68,14 +68,14 @@ pub fn print_security_analysis(analysis: &SecurityAnalysis) {
         }
     );
 
-    if analysis.rwx_segment.is_empty() {
+    if analysis.rwx_segments.is_empty() {
         println!("RWX Segments     : None");
     } else {
-        println!("RWX Segments     : {}", analysis.rwx_segment.len());
+        println!("RWX Segments     : {}", analysis.rwx_segments.len());
 
-        for (index, segment) in analysis.rwx_segment.iter().enumerate() {
+        for (index, segment) in analysis.rwx_segments.iter().enumerate() {
             println!();
-            println!("RWX Segment {}/{}", index + 1, analysis.rwx_segment.len());
+            println!("RWX Segment {}/{}", index + 1, analysis.rwx_segments.len());
             println!("Type             : {}", segment.program_type);
             println!("Flags            : {}", segment.flags);
             println!("Offset           : 0x{:X}", segment.offset);
@@ -101,7 +101,7 @@ pub fn print_error(error: &ElfError) {
         }
 
         ElfError::BadDynamicEntry => {
-            eprintln!("Error: Much Dynamic Entry");
+            eprintln!("Error: multiple dynamic segments found");
         }
     }
 }

@@ -66,16 +66,33 @@ impl fmt::Display for DynamicLinkingStatus {
     }
 }
 
+/// Security-oriented summary of an analyzed ELF binary.
+///
+/// This structure is derived from the ELF header, Program Headers, and Dynamic
+/// Section entries. It summarizes common binary hardening properties such as
+/// NX, PIE, RELRO, and RWX memory mappings.
 #[derive(Debug, PartialEq)]
 pub struct SecurityAnalysis {
+    /// No-eXecute stack status.
     pub nx: Status,
+    ///Position Independent Executable status.
     pub pie: Status,
+    /// RELRO protection status.
     pub relro: RelroStatus,
-    pub rwx_segment: Vec<ProgramHeader>,
+    /// Program Headers whose segments are readable, writable, and executable.
+    pub rwx_segments: Vec<ProgramHeader>,
+    /// Whether the ELF contains a `PT_DYNAMIC` Program Header.
     pub has_dynamic_segment: bool,
+    /// Whether the ELF contains a `PT_INTERP` Program Header.
     pub has_interpreter: bool,
 }
 
+/// Builds a security-oriented analysis from parsed ELF metadata.
+///
+/// This function does not read the ELF file directly. It inspects the parsed
+/// ELF header, Program Headers, and Dynamic Section entries to infer hardening
+/// properties such as NX, PIE, RELRO, dynamic linking, interpreter presence,
+/// and RWX segments.
 pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
     let bin = &metadata.header.binary_type;
     let entry = &metadata.dyn_entry;
@@ -84,7 +101,7 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
         nx: Status::Unknown,
         pie: Status::Unknown,
         relro: RelroStatus::None,
-        rwx_segment: rwx_header,
+        rwx_segments: rwx_header,
         has_dynamic_segment: false,
         has_interpreter: false,
     };
@@ -112,6 +129,7 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
                         response.relro = Full;
                         break;
                     }
+                    // Full RELRO requires GNU_RELRO plus immediate symbol binding.
                     if i.tag == Flags && (i.value & 0x8) != 0 {
                         response.relro = Full;
                         break;
@@ -129,7 +147,7 @@ pub fn analyze(metadata: &ElfMetadata) -> SecurityAnalysis {
             && program_header.flags.writable
             && program_header.flags.readable
         {
-            response.rwx_segment.push(program_header.clone())
+            response.rwx_segments.push(program_header.clone())
         }
     }
     response

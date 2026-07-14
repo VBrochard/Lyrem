@@ -39,6 +39,11 @@ impl fmt::Display for ProgramType {
     }
 }
 
+/// Permission flags associated with an ELF Program Header.
+///
+/// These flags describe whether a segment should be readable, writable, and/or
+/// executable once mapped into memory. Lyrem uses them to detect properties such
+/// as executable stacks and RWX segments.
 #[derive(Debug, PartialEq, Serialize, Clone)]
 pub struct ProgramFlags {
     pub readable: bool,

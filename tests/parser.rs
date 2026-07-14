@@ -27,7 +27,7 @@ mod tests {
         assert_eq!(analyze.pie, Status::Disabled);
         assert_eq!(analyze.relro, RelroStatus::Partial);
         assert_eq!(analyze.has_interpreter, true);
-        assert_eq!(analyze.rwx_segment.len(), 0);
+        assert_eq!(analyze.rwx_segments.len(), 0);
         assert!(
             elf.prog_header
                 .iter()
@@ -75,8 +75,8 @@ mod tests {
         assert_eq!(elf.header.class, ElfClass::Elf64);
         assert_eq!(elf.header.architecture, Architecture::X86_64);
         assert_eq!(elf.header.binary_type, BinaryType::Executable);
-        assert_eq!(elf.header.endianess, Endianess::LittleEndian);
-        assert_eq!(analyze.rwx_segment.len(), 1);
+        assert_eq!(elf.header.endianness, Endianness::LittleEndian);
+        assert_eq!(analyze.rwx_segments.len(), 1);
         assert_eq!(analyze.has_dynamic_segment, false);
         assert_eq!(analyze.has_interpreter, false);
         assert_eq!(analyze.relro, RelroStatus::None);
@@ -93,12 +93,12 @@ mod tests {
         assert_eq!(elf.header.class, ElfClass::Elf64);
         assert_eq!(elf.header.architecture, Architecture::X86_64);
         assert_eq!(elf.header.binary_type, BinaryType::Executable);
-        assert_eq!(elf.header.endianess, Endianess::LittleEndian);
+        assert_eq!(elf.header.endianness, Endianness::LittleEndian);
         assert_eq!(analyze.nx, Status::Disabled);
         assert_eq!(analyze.pie, Status::Disabled);
         assert_eq!(analyze.relro, RelroStatus::Partial);
         assert_eq!(analyze.has_interpreter, true);
-        assert_eq!(analyze.rwx_segment.len(), 1);
+        assert_eq!(analyze.rwx_segments.len(), 1);
     }
 
     #[test]
@@ -112,11 +112,11 @@ mod tests {
         assert_eq!(elf.header.class, ElfClass::Elf64);
         assert_eq!(elf.header.architecture, Architecture::X86_64);
         assert_eq!(elf.header.binary_type, BinaryType::SharedObject);
-        assert_eq!(elf.header.endianess, Endianess::LittleEndian);
+        assert_eq!(elf.header.endianness, Endianness::LittleEndian);
         assert_eq!(analyze.nx, Status::Enabled);
         assert_eq!(analyze.pie, Status::Enabled);
         assert_eq!(analyze.relro, RelroStatus::Partial);
         assert_eq!(analyze.has_interpreter, true);
-        assert_eq!(analyze.rwx_segment.len(), 0);
+        assert_eq!(analyze.rwx_segments.len(), 0);
     }
 }
