@@ -39,9 +39,9 @@ use crate::elf::metadata::BinaryType::SharedObject;
 use crate::elf::metadata::ElfClass::{self};
 use crate::elf::metadata::ElfHeaderMetadata;
 use crate::elf::metadata::ElfMetadata;
-use crate::elf::metadata::Endianess::BigEndian;
-use crate::elf::metadata::Endianess::LittleEndian;
-use crate::elf::metadata::Endianess::{self};
+use crate::elf::metadata::Endianness::BigEndian;
+use crate::elf::metadata::Endianness::LittleEndian;
+use crate::elf::metadata::Endianness::{self};
 use crate::elf::metadata::FileMetadata;
 use crate::elf::parser::ElfError::BadHeader;
 use crate::elf::parser::ElfError::NotAnElfFile;
@@ -91,48 +91,48 @@ pub fn parse_elf(path: &Path) -> Result<ElfMetadata, ElfError> {
     let class_byte = read_u8(&mut f)?;
     let class = parse_class(class_byte);
     let endian_byte = read_u8(&mut f)?;
-    let endianess = parse_endian(endian_byte)?;
+    let endianness = parse_endian(endian_byte)?;
     read_u8(&mut f)?;
     let abi_byte = read_u8(&mut f)?;
     let abi = parse_abi(abi_byte);
     for _ in 0..8 {
         read_u8(&mut f)?;
     }
-    let binary_byte = read_u16(&mut f, &endianess)?;
+    let binary_byte = read_u16(&mut f, &endianness)?;
     let binary_type = parse_binary_type(binary_byte);
-    let archi_byte = read_u16(&mut f, &endianess)?;
+    let archi_byte = read_u16(&mut f, &endianness)?;
     let architecture = parse_architecture(archi_byte);
     for _ in 0..4 {
         read_u8(&mut f)?;
     }
     let entry_point = match &class {
-        ElfClass::Elf32 => read_u32(&mut f, &endianess)? as u64,
-        ElfClass::Elf64 => read_u64(&mut f, &endianess)?,
+        ElfClass::Elf32 => read_u32(&mut f, &endianness)? as u64,
+        ElfClass::Elf64 => read_u64(&mut f, &endianness)?,
         ElfClass::Unknown(_) => return Err(BadHeader),
     };
     let e_phoff = match &class {
-        ElfClass::Elf32 => read_u32(&mut f, &endianess)? as u64,
-        ElfClass::Elf64 => read_u64(&mut f, &endianess)?,
+        ElfClass::Elf32 => read_u32(&mut f, &endianness)? as u64,
+        ElfClass::Elf64 => read_u64(&mut f, &endianness)?,
         ElfClass::Unknown(_) => return Err(BadHeader),
     };
     let _e_shoff = match &class {
-        ElfClass::Elf32 => read_u32(&mut f, &endianess)? as u64,
-        ElfClass::Elf64 => read_u64(&mut f, &endianess)?,
+        ElfClass::Elf32 => read_u32(&mut f, &endianness)? as u64,
+        ElfClass::Elf64 => read_u64(&mut f, &endianness)?,
         ElfClass::Unknown(_) => return Err(BadHeader),
     };
-    let _e_flags = read_u32(&mut f, &endianess)?;
-    let _e_ehsize = read_u16(&mut f, &endianess)?;
-    let _e_phentsize = read_u16(&mut f, &endianess)?;
-    let e_phnum = read_u16(&mut f, &endianess)?;
+    let _e_flags = read_u32(&mut f, &endianness)?;
+    let _e_ehsize = read_u16(&mut f, &endianness)?;
+    let _e_phentsize = read_u16(&mut f, &endianness)?;
+    let e_phnum = read_u16(&mut f, &endianness)?;
     f.seek(SeekFrom::Start(e_phoff))?;
     let mut prog_header: Vec<ProgramHeader> = Vec::new();
     for _ in 0..e_phnum {
-        prog_header.push(parse_program_header(&mut f, &endianess, &class)?);
+        prog_header.push(parse_program_header(&mut f, &endianness, &class)?);
     }
-    let dyn_entry = parse_dynamic(&prog_header, &mut f, &endianess, &class)?;
+    let dyn_entry = parse_dynamic(&prog_header, &mut f, &endianness, &class)?;
     let header = ElfHeaderMetadata {
         class,
-        endianess,
+        endianness,
         abi,
         architecture,
         binary_type,
@@ -174,10 +174,10 @@ fn parse_class(class: u8) -> ElfClass {
     }
 }
 
-fn parse_endian(endian: u8) -> Result<Endianess, ElfError> {
+fn parse_endian(endian: u8) -> Result<Endianness, ElfError> {
     match endian {
-        1 => Ok(Endianess::LittleEndian),
-        2 => Ok(Endianess::BigEndian),
+        1 => Ok(Endianness::LittleEndian),
+        2 => Ok(Endianness::BigEndian),
         _ => Err(BadHeader),
     }
 }
@@ -225,7 +225,7 @@ fn read_u8(desc: &mut File) -> Result<u8, ElfError> {
     Ok(buffer[0])
 }
 
-fn read_u16(desc: &mut File, endia: &Endianess) -> Result<u16, ElfError> {
+fn read_u16(desc: &mut File, endia: &Endianness) -> Result<u16, ElfError> {
     let mut buffer = [0; 2];
     desc.read_exact(&mut buffer)?;
     let response = match endia {
@@ -235,7 +235,7 @@ fn read_u16(desc: &mut File, endia: &Endianess) -> Result<u16, ElfError> {
     Ok(response)
 }
 
-fn read_u32(desc: &mut File, endia: &Endianess) -> Result<u32, ElfError> {
+fn read_u32(desc: &mut File, endia: &Endianness) -> Result<u32, ElfError> {
     let mut buffer = [0; 4];
     desc.read_exact(&mut buffer)?;
     let response = match endia {
@@ -245,7 +245,7 @@ fn read_u32(desc: &mut File, endia: &Endianess) -> Result<u32, ElfError> {
     Ok(response)
 }
 
-fn read_u64(desc: &mut File, endia: &Endianess) -> Result<u64, ElfError> {
+fn read_u64(desc: &mut File, endia: &Endianness) -> Result<u64, ElfError> {
     let mut buffer = [0; 8];
     desc.read_exact(&mut buffer)?;
     let response = match endia {
@@ -283,9 +283,10 @@ fn parse_flags(byte: u32) -> ProgramFlags {
 
 fn parse_program_header(
     desc: &mut File,
-    endia: &Endianess,
+    endia: &Endianness,
     class: &ElfClass,
 ) -> Result<ProgramHeader, ElfError> {
+    // ELF32 and ELF64 Program Headers store `p_flags` at different offsets.
     match class {
         ElfClass::Elf32 => {
             let ptype = parse_program_type(read_u32(desc, endia)?);
@@ -353,7 +354,7 @@ fn parse_tag(byte: i64) -> DynamicTag {
 fn parse_dynamic(
     prog: &[ProgramHeader],
     desc: &mut File,
-    endia: &Endianess,
+    endia: &Endianness,
     class: &ElfClass,
 ) -> Result<Vec<DynamicEntry>, ElfError> {
     let mut dynamic_header = None;
@@ -369,7 +370,6 @@ fn parse_dynamic(
         None => return Ok(Vec::new()),
     };
     desc.seek(SeekFrom::Start(dynamic_header.offset))?;
-
     match class {
         ElfClass::Elf32 => {
             let mut byte_read = 0;
@@ -420,8 +420,8 @@ mod tests {
 
     #[test]
     fn test_parse_endian() {
-        assert!(matches!(parse_endian(1), Ok(Endianess::LittleEndian)));
-        assert!(matches!(parse_endian(2), Ok(Endianess::BigEndian)));
+        assert!(matches!(parse_endian(1), Ok(Endianness::LittleEndian)));
+        assert!(matches!(parse_endian(2), Ok(Endianness::BigEndian)));
         assert!(matches!(parse_endian(42), Err(ElfError::BadHeader)));
     }
 

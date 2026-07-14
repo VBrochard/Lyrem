@@ -13,7 +13,7 @@ pub fn print_metadata(metadata: &ElfMetadata) {
     println!("ELF Header");
     println!("----------");
     println!("Class        : {}", metadata.header.class);
-    println!("Endianess    : {}", metadata.header.endianess);
+    println!("Endianess    : {}", metadata.header.endianness);
     println!("ABI          : {}", metadata.header.abi);
     println!("Architecture : {}", metadata.header.architecture);
     println!("Type         : {}", metadata.header.binary_type);
