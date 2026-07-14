@@ -101,7 +101,7 @@ pub fn print_error(error: &ElfError) {
         }
 
         ElfError::BadDynamicEntry => {
-            eprintln!("Error: Much Dynamic Entry");
+            eprintln!("Error: multiple dynamic segments found");
         }
     }
 }
