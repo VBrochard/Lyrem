@@ -68,14 +68,14 @@ pub fn print_security_analysis(analysis: &SecurityAnalysis) {
         }
     );
 
-    if analysis.rwx_segment.is_empty() {
+    if analysis.rwx_segments.is_empty() {
         println!("RWX Segments     : None");
     } else {
-        println!("RWX Segments     : {}", analysis.rwx_segment.len());
+        println!("RWX Segments     : {}", analysis.rwx_segments.len());
 
-        for (index, segment) in analysis.rwx_segment.iter().enumerate() {
+        for (index, segment) in analysis.rwx_segments.iter().enumerate() {
             println!();
-            println!("RWX Segment {}/{}", index + 1, analysis.rwx_segment.len());
+            println!("RWX Segment {}/{}", index + 1, analysis.rwx_segments.len());
             println!("Type             : {}", segment.program_type);
             println!("Flags            : {}", segment.flags);
             println!("Offset           : 0x{:X}", segment.offset);

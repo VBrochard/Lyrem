@@ -11,12 +11,12 @@ use std::path::PathBuf;
 #[derive(Parser)]
 #[command(version, about = "Security analysis tool for Linux ELF binaries")]
 struct Cli {
-    /// ELF binary to analyze
+    /// ELF binary to analyze.
     path: PathBuf,
-    /// Output analysis as JSON
+    /// Output analysis as JSON.
     #[arg(long)]
     json: bool,
-    /// Display the full ELF report
+    /// Display the full ELF report.
     #[arg(long)]
     full: bool,
 }

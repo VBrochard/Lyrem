@@ -61,11 +61,16 @@ use crate::elf::program::ProgramType::Phdr;
 use crate::elf::program::ProgramType::Shlib;
 use crate::elf::program::ProgramType::Tls;
 
+/// Errors that can occur while parsing an ELF file.
 #[derive(Debug)]
 pub enum ElfError {
+    /// Underlying I/O error while reading the file.
     Io(io::Error),
+    /// The file does not start with the ELF magic number.
     NotAnElfFile,
+    /// The ELF header or one of its mandatory fields is malformed.
     BadHeader,
+    /// A Dynamic Section entry could not be parsed.
     BadDynamicEntry,
 }
 
@@ -75,6 +80,11 @@ impl From<io::Error> for ElfError {
     }
 }
 
+/// Parses a Linux ELF file and returns Lyrem's structured metadata.
+///
+/// This is the main parsing entry point. It reads the ELF header, Program
+/// Headers, and Dynamic Section entries, then returns a structured
+/// representation used by the CLI and security analysis layers.
 pub fn parse_elf(path: &Path) -> Result<ElfMetadata, ElfError> {
     let mut f = File::open(path)?;
     check_magic(&mut f)?;
